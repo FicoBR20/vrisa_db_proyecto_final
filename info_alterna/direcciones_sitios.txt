@@ -1,0 +1,38 @@
+Santiago de Cali:
+
+ https://www.google.com/maps/place/Cali,+Valle+del+Cauca/@3.3952901,-76.6082381,12z/data=!3m1!4b1!4m6!3m5!1s0x8e30a6f0cc4bb3f1:0x1f0fb5e952ae6168!8m2!3d3.4516467!4d-76.5319854!16zL20vMDFwc3Nm?entry=ttu&g_ep=EgoyMDI1MTIwOC4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%
+ 
+3.437101, -76.514339 // SANTIAGO DE CALI
+
+
+
+ Sur Univalle
+
+ https://www.google.com/maps/place/Universidad+Del+Valle,+Comuna+17,+Cali,+Valle+del+Cauca/@3.3747602,-76.5369702,17z/data=!3m1!4b1!4m6!3m5!1s0x8e30a171d0c4cbb7:0x87dfc5d3c72b3ec4!8m2!3d3.3747602!4d-76.5343899!16s%2Fg%2F11bc8dlpmf?entry=ttu&g_ep=EgoyMDI1MTIwOC4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D
+
+3.375205, -76.534533 // UNIVALLE CALI
+
+
+ Centro Cam
+
+ https://www.google.com/maps/place/Centro+Administrativo+Distrital+(CAD)/@3.4541264,-76.5366824,17z/data=!3m1!4b1!4m6!3m5!1s0x8e30a66f8b69b055:0x5b1072877d5119d8!8m2!3d3.4541264!4d-76.5341021!16s%2Fg%2F11fz6cpw3k?entry=ttu&g_ep=EgoyMDI1MTIwOC4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D
+
+3.454478, -76.534140 // CAD ALCALDIA DE CALI
+
+
+ Oriente compartir
+
+ https://www.google.com/maps/place/Colegio+Compartir/@3.4307302,-76.4726533,17z/data=!3m1!4b1!4m6!3m5!1s0x8e30a76fbac764d5:0x68b32949148e1ad2!8m2!3d3.4307302!4d-76.470073!16s%2Fg%2F11bc56vk42?entry=ttu&g_ep=EgoyMDI1MTIwOC4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D
+
+3.431586, -76.470586   // colegio compartir oriente de cali
+
+
+
+ Oeste iglesia San Antonio
+
+ https://www.google.com/maps/place/Capilla+de+San+Antonio/@3.447553,-76.5443508,17z/data=!3m1!4b1!4m6!3m5!1s0x8e30a67c15d2f349:0xc986caa1b074e1a6!8m2!3d3.447553!4d-76.5417705!16s%2Fg%2F120zv467?entry=ttu&g_ep=EgoyMDI1MTIwOC4wIKXMDSoKLDEwMDc5MjA3MUgBUAM%3D
+
+ SELECT ST_SetSRID(
+         ST_MakePoint(-76.5417705, 3.447553),
+         4326
+       ) AS geom;
