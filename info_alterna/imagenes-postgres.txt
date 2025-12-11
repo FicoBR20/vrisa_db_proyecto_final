@@ -1,0 +1,89 @@
+CREATE TABLE fotos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100),
+    imagen BYTEA
+);
+
+
+============================================= metodo uno =========================================================
+
+
+1. Guardar la imagen directamente en PostgreSQL (tipo bytea)
+
+Este es el método recomendado solo para imágenes pequeñas (iconos, logos, ≤ 200–300 KB).
+
+Pasos
+
+Crear columna tipo bytea:
+
+CREATE TABLE fotos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100),
+    imagen BYTEA
+);
+
+
+Insertar una imagen desde un archivo (usando pg_read_binary_file o desde tu backend):
+
+Ejemplo desde SQL (solo superuser):
+INSERT INTO fotos (nombre, imagen)
+VALUES ('logo.png', pg_read_binary_file('/ruta/logo.png'));
+
+Ejemplo desde Python/Django:
+with open("logo.png", "rb") as f:
+    data = f.read()
+
+cursor.execute("INSERT INTO fotos (nombre, imagen) VALUES (%s, %s)", ("logo", psycopg2.Binary(data)))
+
+
+Obtener la imagen:
+
+SELECT encode(imagen, 'base64') FROM fotos WHERE id = 1;
+
+
+Tu backend decodifica el Base64 y la entrega como archivo.
+
+
+
+
+
+
+
+
+
+
+
+================================== metodo 2 ====================================================================
+
+3. Guardar solo la URL / ruta y almacenar la imagen en el servidor o S3
+
+Este es el método profesional y escalable.
+Recomendado para tu proyecto (React + Django + Postgres).
+
+Ejemplo tabla:
+CREATE TABLE imagenes (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100),
+    url TEXT
+);
+
+
+Ej.:
+
+/uploads/logo.png
+https://mi-servidor.com/imagenes/cliente123.png
+
+
+Ventajas:
+
+Rápido.
+
+Escalable.
+
+No infla la base de datos.
+
+Compatible con CDN.
+
+Desventajas:
+
+Requiere manejo de archivo en backend
