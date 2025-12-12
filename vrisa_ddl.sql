@@ -11,7 +11,7 @@ CREATE TABLE listado_referencial_intituciones(
     id_listado_ref_institucion  SERIAL PRIMARY KEY,
     id_sistema                  INT NOT NULL DEFAULT 999, -- 999 sistama default
     nombre_institucion   VARCHAR(100)NOT NULL,
-    clave_institucion   VARCHAR(14)NOT NULL,--usada para validar registro inicial
+    clave_institucion   VARCHAR(6)NOT NULL,--usada para validar registro inicial
     CONSTRAINT fk_listado_instit_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
@@ -25,7 +25,7 @@ CREATE TABLE listado_referencial_investigadores(
     id_sistema                  INT NOT NULL DEFAULT 999,
     nombre_investigador VARCHAR(30)NOT NULL,
     apellido_invesigador VARCHAR(30)NOT NULL,
-    licencia_investigador VARCHAR(50)NOT NULL  -- usada para validar registro inicial
+    licencia_investigador VARCHAR(6)NOT NULL  -- usada para validar registro inicial
     CONSTRAINT fk_listado_invest_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
@@ -196,23 +196,66 @@ CREATE TABLE institucion(
     color_1         VARCHAR(20) NOT NULL,
     color_2         VARCHAR(20) NOT NULL,
     logo_image_path TEXT NOT NULL, -- path de la imagen png
+    secret_key      VARCHAR(6), -- checkea durante el registro 
     FOREIGN KEY (color_1, color_2)REFERENCES color_inst(id_color)
     ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
     ON DELETE RESTRICT ON UPDATE CASCADE
 
-)
+);
 
 CREATE TABLE investigador(
-    
-)
+    id_investigador      SERIAL PRIMARY KEY,
+    id_usuario          INT NOT NULL,
+    id_persona          INT NOT NULL,
+    especialidad        VARCHAR(50),
+    licencia_profesinal     VARCHAR(6),
+    FOREIGN KEY (id_usuario, id_persona) 
+    REFERENCES usuario(id_usuario), persona(id_persona)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+
+);
+
+CREATE TABLE ciudadano(
+    id_ciudadano  SERIAL PRIMARY KEY,
+    id_usuario   INT NOT NULL,
+    id_persona   INT NOT NULL,
+    profesion  VARCHAR(50) DEFAULT 'veedor',
+    FOREIGN KEY (id_usuario, id_persona) 
+    REFERENCES usuario(id_usuario), persona(id_persona)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+
+);
+
+CREATE TABLE empleado(
+    id_empleado  SERIAL PRIMARY KEY,
+    id_usuario   INT NOT NULL,
+    id_persona   INT NOT NULL,
+    id_estacion  INT NOT NULL,
+    cargo       VARCHAR(30) NOT NULL,
+    salario     INT NOT NULL,
+    fecha_ingreso   TIMESTAMP,
+    FOREIGN KEY (id_usuario, id_persona) 
+    REFERENCES usuario(id_usuario), persona(id_persona)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_estacion) REFERENCES estacion(id_estacion)
+    ON DELETE RESTRICT ON UPDATE CASCADE
 
 
+);
 
+/*
+Check inicial al registrarse en el sistema
+usuario.institucion.secret_key (vs)listado
+usuario.persona.investigador.licencia_profesional (vs) listado
+*/
 
-CREATE TABLE verifica(
+CREATE TABLE verifica_ingreso_usuario(
     id_verifica SERIAL PRIMARY KEY,
-    id_listado_ref_institucion NOT NULL,
+    id_listado_ref_institucion INT NOT NULL,
+    id_usuario INT NOT NULL,
+    habilitada_inst BOOLEAN DEFAULT FALSE,
+    fecha           TIMESTAMP
     
-)
+);
 
