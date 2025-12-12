@@ -11,10 +11,12 @@ CREATE TABLE listado_referencial_intituciones(
     id_listado_ref_institucion  SERIAL PRIMARY KEY,
     id_sistema                  INT NOT NULL,
     nombre_institucion   VARCHAR(100)NOT NULL,
-    clave_institucion   VARCHAR(14)NOT NULL,--usada para registro
-    CONSTRAINT fk_listado_intit_sistema
+    clave_institucion   VARCHAR(14)NOT NULL,--usada para validar registro inicial
+    CONSTRAINT fk_listado_instit_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
+        ON DELETE RESTRICT
+
 
 );
 
@@ -23,10 +25,11 @@ CREATE TABLE listado_referencial_investigadores(
     id_sistema                  INT NOT NULL,
     nombre_investigador VARCHAR(30)NOT NULL,
     apellido_invesigador VARCHAR(30)NOT NULL,
-    licencia_investigador VARCHAR(50)NOT NULL  -- usada para registro
+    licencia_investigador VARCHAR(50)NOT NULL  -- usada para validar registro inicial
     CONSTRAINT fk_listado_invest_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
+        ON DELETE RESTRICT
 
 
 );
@@ -52,6 +55,8 @@ CREATE TABLE dashboard (
     CONSTRAINT fk_dashboard_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
+        ON DELETE RESTRICT
+        ON UPDATE RESTRICT
 
 );
 
@@ -66,16 +71,24 @@ CREATE TABLE estacion (
     CONSTRAINT fk_estacion_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
 );
+
+-- crear funcion aleatoria para que al crear un sensor
+-- genere un serial de [10] campos
 
 CREATE TABLE sensor(
     id_sensor SERIAL PRIMARY KEY,
-    id_estacion INT NOT NULL,
+    serial_sensor   VARCHAR(10) UNIQUE, -- funcion aleatoria
+    id_estacion INT NOT NULL DEFAULT 99,
     nombre      VARCHAR(50) NOT NULL,
     descirpcion  TEXT,
     CONSTRAINT fk_sensor_estacion
         FOREIGN KEY (id_estacion)
         REFERENCES estacion(id_estacion)
+        ON DELETE SET DEFAULT
+        ON UPDATE SET DEFAULT
 
 
 );
@@ -87,23 +100,16 @@ CREATE TYPE accion_mto AS ENUM (
 
 
 
-CREATE TABLE ajuste(
+CREATE TABLE ajuste( -- TABLA PADRE
     id_ajuste SERIAL PRIMARY KEY,
     id_sensor INT NOT NULL,
     fecha     TIMESTAMP NOT NULL,
-    accion_hecha    accion_mto
+    accion_hecha    accion_mto, -- type definido
     FOREIGN KEY (id_sensor) REFERENCES sensor(id_sensor)
     
 
 );
 
--- CREATE TABLE mantenimiento (
---     id_mantenimiento SERIAL PRIMARY KEY,
---     id_sensor        INT NOT NULL,
---     fecha            TIMESTAMP NOT NULL,
---     tipo             VARCHAR(20) NOT NULL CHECK (tipo IN ('preventivo', 'correctivo')),
---     FOREIGN KEY (id_sensor) REFERENCES sensor(id_sensor)
--- );
 
 /*
 Como ea la herencia en sql
@@ -118,10 +124,10 @@ CREATE DOMAIN tipo_mantenimiento AS VARCHAR(20)
     CHECK (VALUE IN ('preventivo', 'correctivo'));
 
 
-CREATE TABLE mantenimiento (
+CREATE TABLE mantenimiento (--ok TABLA HIJA DE AJUSTE
     id_ajuste SERIAL PRIMARY KEY,
     repuesto    VARCHAR(20),
-    tipo_mto    tipo_mantenimiento NOT NULL,
+    tipo_mto    tipo_mantenimiento NOT NULL,--domain definido
     descripcion TEXT,
     FOREIGN KEY (id_ajuste)
         REFERENCES ajuste(id_ajuste)
@@ -130,38 +136,17 @@ CREATE TABLE mantenimiento (
 
 
 CREATE DOMAIN metodo_calibracion AS VARCHAR(20)
-    CHECK (VALUE IN ('metodo manual', 'metodo automatido remoto", "metodo patron referencia","metodo gavimetria, "metodo dos puntos"" ));
+    CHECK (VALUE IN ('metodo manual', 'metodo automatico remoto', 'metodo patron referencia','metodo gavimetria', 'metodo dos puntos'));
 
 
 
 
-CREATE TABLE calibracion (
+CREATE TABLE calibracion (--OK TABLA HIJA DE AJUSTE
     id_ajuste SERIAL PRIMARY KEY,
-    metodologia    observaciones TEXT,
+    metodo_usado metodo_calibracion,
+    observaciones TEXT,
     FOREIGN KEY (id_ajuste)
         REFERENCES ajuste(id_ajuste)
         ON DELETE CASCADE
 );
 
-
-
-
-
-
-
-
-
-/*
-CREATE TABLE factura (
-    id_factura SERIAL PRIMARY KEY,
-    id_cliente INT,
-    CONSTRAINT fk_factura_cliente
-        FOREIGN KEY (id_cliente)
-        REFERENCES cliente(id_cliente)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-
-
-**/

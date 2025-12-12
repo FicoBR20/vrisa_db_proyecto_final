@@ -39,3 +39,13 @@ INSERT INTO estacion (
     'Carrera 1 oeste',
     '12-112'
 );
+INSERT INTO estacion (
+    id_sistema, nombre, emision, geo_ubicacion, calle, numero
+) VALUES (
+    99,
+    'Estacion por defecto Pascual Guerrero',
+    FALSE,
+    ST_SetSRID(ST_MakePoint(-76.54105, 3.429960), 4326),
+    'Calle 5',
+    '34-152'
+);
