@@ -83,7 +83,7 @@ CREATE TABLE sensor(
     serial_sensor   VARCHAR(10) UNIQUE, -- funcion aleatoria
     id_estacion INT NOT NULL DEFAULT 99, -- 99 estacion default
     nombre      VARCHAR(50) NOT NULL,
-    descirpcion  TEXT,
+    descripcion  TEXT,
     CONSTRAINT fk_sensor_estacion
         FOREIGN KEY (id_estacion)
         REFERENCES estacion(id_estacion)
@@ -259,3 +259,23 @@ CREATE TABLE verifica_ingreso_usuario(
     
 );
 
+CREATE TABLE muestra(
+    id_muestra SERIAL PRIMARY KEY,
+    id_sensor INT NOT NULL DEFAULT 9999,
+    fecha_inicial   TIMESTAMP NOT NULL,
+    fecha_final     TIMESTAMP NOT NULL,
+    FOREIGN KEY (id_sensor) REFERENCES sensor(id_sensor)
+    ON DELETE SET DEFAULT ON UPDATE SET DEFAULT
+
+);
+
+CREATE DOMAIN limite_und_tiempo AS VARCHAR(20)
+    CHECK (VALUE IN ( '24 horas', '1 hora', '8 horas'));
+
+CREATE TABLE contaminante(
+    id_contaminante SERIAL PRIMARY KEY,
+    cantidad_recolectada DECIMAL(10,2),
+    unidad               VARCHAR(15) DEFAULT 'µg/m³',
+    limite_max_permitido    DECIMAL(10,2) NOT NULL,
+    limite_unidad_tiempo    limite_und_tiempo NOT NULL -- ejemplo '2 horas, 1 hora, 8 horas...'
+)

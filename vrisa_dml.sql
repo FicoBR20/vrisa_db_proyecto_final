@@ -63,3 +63,7 @@ INSERT INTO estacion (
     'Calle 5',
     '34-152'
 );
+
+INSERT INT sensor ( id_sensor, serial_sensor, id_estacion, nombre, descripcion)
+VALUES (9999, 'recupera', 99, 'recuperador del borrado', 'datos de un sensor eliminado'
+);
