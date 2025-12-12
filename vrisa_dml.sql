@@ -1,3 +1,17 @@
+INSERT INTO sistema (
+    id_sistema, nombre_sistema)
+    VALUES ('Vrisa'
+);
+
+INSERT INTO sistema (
+    id_sistema, nombre_sistema)
+    VALUES (999,'copia de seguridad'
+);
+
+
+
+
+
 INSERT INTO estacion (
     id_sistema, nombre, emision, geo_ubicacion, calle, numero
 ) VALUES (

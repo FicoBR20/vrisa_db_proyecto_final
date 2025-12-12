@@ -9,7 +9,7 @@ CREATE TABLE sistema(
 
 CREATE TABLE listado_referencial_intituciones(
     id_listado_ref_institucion  SERIAL PRIMARY KEY,
-    id_sistema                  INT NOT NULL,
+    id_sistema                  INT NOT NULL DEFAULT 999, -- 999 sistama default
     nombre_institucion   VARCHAR(100)NOT NULL,
     clave_institucion   VARCHAR(14)NOT NULL,--usada para validar registro inicial
     CONSTRAINT fk_listado_instit_sistema
@@ -22,7 +22,7 @@ CREATE TABLE listado_referencial_intituciones(
 
 CREATE TABLE listado_referencial_investigadores(
     id_listado_ref_investigador  SERIAL PRIMARY KEY,
-    id_sistema                  INT NOT NULL,
+    id_sistema                  INT NOT NULL DEFAULT 999,
     nombre_investigador VARCHAR(30)NOT NULL,
     apellido_invesigador VARCHAR(30)NOT NULL,
     licencia_investigador VARCHAR(50)NOT NULL  -- usada para validar registro inicial
@@ -46,23 +46,23 @@ CREATE TYPE tipo_informe AS ENUM (
 
 CREATE TABLE dashboard (
     id_dashboard SERIAL PRIMARY KEY,
-    id_sistema  INT NOT NULL,
+    id_sistema  INT NOT NULL DEFAULT 999,
     nombre VARCHAR(50) NOT NULL,
     descripcion TEXT,
     tipo tipo_informe NOT NULL,-- type data
     consulta_sql TEXT NOT NULL,--Consulta view materializarla
-    creado TIMESTAMP DEFAULT now()
+    creado TIMESTAMP DEFAULT now(),
     CONSTRAINT fk_dashboard_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
-        ON DELETE RESTRICT
-        ON UPDATE RESTRICT
+        ON DELETE SET DEFAULT
+        ON UPDATE SET DEFAULT
 
 );
 
 CREATE TABLE estacion (
     id_estacion     SERIAL PRIMARY KEY,
-    id_sistema      INT NOT NULL,
+    id_sistema      INT NOT NULL DEFAULT 999,
     nombre          VARCHAR(100),
     emision         BOOLEAN DEFAULT FALSE,
     geo_ubicacion   GEOMETRY(Point, 4326) NOT NULL,
@@ -71,8 +71,8 @@ CREATE TABLE estacion (
     CONSTRAINT fk_estacion_sistema
         FOREIGN KEY (id_sistema)
         REFERENCES sistema(id_sistema)
-        ON UPDATE RESTRICT
-        ON DELETE RESTRICT
+        ON UPDATE SET DEFAULT
+        ON DELETE SET DEFAULT
 );
 
 -- crear funcion aleatoria para que al crear un sensor
@@ -81,7 +81,7 @@ CREATE TABLE estacion (
 CREATE TABLE sensor(
     id_sensor SERIAL PRIMARY KEY,
     serial_sensor   VARCHAR(10) UNIQUE, -- funcion aleatoria
-    id_estacion INT NOT NULL DEFAULT 99,
+    id_estacion INT NOT NULL DEFAULT 99, -- 99 estacion default
     nombre      VARCHAR(50) NOT NULL,
     descirpcion  TEXT,
     CONSTRAINT fk_sensor_estacion
@@ -98,7 +98,7 @@ CREATE TYPE accion_mto AS ENUM (
     'calibracion'
 );
 
-
+------------=======================================FUNCION PARA GUARDAR LOS AJUSTES EN UNA NUEVA TABLA AL BORRAR UN SENSOR
 
 CREATE TABLE ajuste( -- TABLA PADRE
     id_ajuste SERIAL PRIMARY KEY,
@@ -106,19 +106,13 @@ CREATE TABLE ajuste( -- TABLA PADRE
     fecha     TIMESTAMP NOT NULL,
     accion_hecha    accion_mto, -- type definido
     FOREIGN KEY (id_sensor) REFERENCES sensor(id_sensor)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
     
 
 );
 
 
-/*
-Como ea la herencia en sql
-Se crea una nueva tabla con el nombre de la hija
-Se usa la misma id del padre en las tablas hijas, igual nombre y como PK en la tabla hija
-FOREIGN KEY (id_padre) REFERENCES tabla_padre(id_padre)
-ON DELETE CASCADE // u otra restriccion.
-
-*/
 
 CREATE DOMAIN tipo_mantenimiento AS VARCHAR(20)
     CHECK (VALUE IN ('preventivo', 'correctivo'));
@@ -131,7 +125,7 @@ CREATE TABLE mantenimiento (--ok TABLA HIJA DE AJUSTE
     descripcion TEXT,
     FOREIGN KEY (id_ajuste)
         REFERENCES ajuste(id_ajuste)
-        ON DELETE CASCADE
+        ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 
@@ -147,6 +141,78 @@ CREATE TABLE calibracion (--OK TABLA HIJA DE AJUSTE
     observaciones TEXT,
     FOREIGN KEY (id_ajuste)
         REFERENCES ajuste(id_ajuste)
-        ON DELETE CASCADE
+        ON UPDATE RESTRICT ON DELETE RESTRICT
 );
+
+
+CREATE DOMAIN tipo_usuario AS VARCHAR(20)
+    CHECK (VALUE IN ('publico', 'privado', 'rechazado'));
+
+
+
+CREATE TABLE usuario( -- padre1
+    id_usuario SERIAL PRIMARY KEY,
+    activo      BOOLEAN DEFAULT FALSE,
+    roll        tipo_usuario DEFAULT 'rechazado'
+
+);
+
+
+CREATE TABLE persona(--padre2
+    id_persona SERIAL PRIMARY KEY,
+    nombre      VARCHAR(50) NOT NULL,
+    apellido    VARCHAR(50) NOT NULL,
+    correo      VARCHAR(100) NOT NULL,
+    celular     VARCHAR(30) NOT NULL,
+
+);
+
+
+CREATE TABLE color_inst ( -- se generaran 10 colores basicos a usar por las instituciones
+    id_color SERIAL PRIMARY KEY,
+    nombre VARCHAR(20) UNIQUE NOT NULL,
+    hex VARCHAR(7) NOT NULL,
+    rgb VARCHAR(11) NOT NULL
+);
+
+
+
+CREATE TYPE tipo_institucion AS ENUM (
+    'privada',
+    'publica', 'ong'
+);
+
+
+
+
+CREATE TABLE institucion(
+    id_institucion SERIAL PRIMARY KEY,
+    id_usuario      INT NOT NULL,
+    nombre          VARCHAR(30) NOT NULL,
+    calle           VARCHAR(30) NOT NULL,
+    numero          VARCHAR(30) NOT NULL,
+    correo_gte      VARCHAR(40) NOT NULL,
+    tipo_inst       tipo_institucion NOT NULL,
+    color_1         VARCHAR(20) NOT NULL,
+    color_2         VARCHAR(20) NOT NULL,
+    logo_image_path TEXT NOT NULL, -- path de la imagen png
+    FOREIGN KEY (color_1, color_2)REFERENCES color_inst(id_color)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+
+)
+
+CREATE TABLE investigador(
+    
+)
+
+
+
+
+CREATE TABLE verifica(
+    id_verifica SERIAL PRIMARY KEY,
+    id_listado_ref_institucion NOT NULL,
+    
+)
 
