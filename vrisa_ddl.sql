@@ -259,7 +259,7 @@ CREATE TABLE verifica_ingreso_usuario(
     
 );
 
-CREATE TABLE muestra(
+CREATE TABLE muestra(--padre1
     id_muestra SERIAL PRIMARY KEY,
     id_sensor INT NOT NULL DEFAULT 9999,
     fecha_inicial   TIMESTAMP NOT NULL,
@@ -272,10 +272,117 @@ CREATE TABLE muestra(
 CREATE DOMAIN limite_und_tiempo AS VARCHAR(20)
     CHECK (VALUE IN ( '24 horas', '1 hora', '8 horas'));
 
-CREATE TABLE contaminante(
+
+CREATE TABLE contaminante(--padre2
     id_contaminante SERIAL PRIMARY KEY,
     cantidad_recolectada DECIMAL(10,2),
     unidad               VARCHAR(15) DEFAULT 'µg/m³',
     limite_max_permitido    DECIMAL(10,2) NOT NULL,
     limite_unidad_tiempo    limite_und_tiempo NOT NULL -- ejemplo '2 horas, 1 hora, 8 horas...'
-)
+);
+
+CREATE DOMAIN temp_climatica AS VARCHAR(20)
+    CHECK (VALUE IN ( 'seca', 'lluviosa', 'ventisca', 'atipica'));
+
+
+CREATE TABLE tipo_atmosferico(--padre2
+    id_tipo_atmosferico SERIAL PRIMARY KEY,
+    estacion_climatica  temp_climatica NOT NULL
+);
+
+
+CREATE DOMAIN direccion_viento AS NUMERIC(5,2)
+CHECK (VALUE >= 0 AND VALUE < 360);
+
+
+CREATE TABLE viento(
+    id_viento   SERIAL PRIMARY KEY,
+    id_muestra INT NOT NULL,
+    id_tipo_atmosferico INT NOT NULL,
+    velocidad_kxh INT NOT NULL,
+    direccion_grados direccion_viento NOT NULL,
+    FOREIGN KEY (id_muestra, id_tipo_atmosferico) 
+    REFERENCES muestra(id_muestra), tipo_atmosferico(id_tipo_atmosferico)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE DOMAIN temperatura AS NUMERIC(5,2)
+CHECK (VALUE >= -100 AND VALUE <= 100);
+
+CREATE DOMAIN sitio_de_toma AS VARCHAR(20)
+    CHECK (VALUE IN ( 'interno ->sensor', 'externo ->estacion'));
+
+
+
+
+CREATE TABLE temperatura(
+    id_temperatura SERIAL PRIMARY KEY,
+    id_muestra INT NOT NULL,
+    id_tipo_atmosferico INT NOT NULL,
+    valor_temp  temperatura NOT NULL,
+    unidad_grados           VARCHAR(10) DEFAULT '°C',
+    sitio_muestra       sitio_de_toma NOT NULL,
+    FOREIGN KEY (id_muestra, id_tipo_atmosferico) 
+    REFERENCES muestra(id_muestra), tipo_atmosferico(id_tipo_atmosferico)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE DOMAIN humedad_relativa AS NUMERIC(5,2)
+CHECK (VALUE >= 0 AND VALUE <= 100);
+
+CREATE TABLE humedad(
+    id_humedad SERIAL PRIMARY KEY,
+    id_muestra INT NOT NULL,
+    id_tipo_atmosferico INT NOT NULL,
+    valor_humedad   humedad_relativa NOT NULL,
+    FOREIGN KEY (id_muestra, id_tipo_atmosferico) 
+    REFERENCES muestra(id_muestra), tipo_atmosferico(id_tipo_atmosferico)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TYPE tipo_size AS ENUM(
+    'PM₂.₅', 'PM₁₀'  
+);
+
+
+
+
+CREATE TABLE particula(--hija p1p2
+    id_particula SERIAL PRIMARY KEY,
+    id_muestra INT NOT NULL,
+    id_contaminante INT NOT NULL,
+    descripcion_size    tipo_size,
+    FOREIGN KEY (id_muestra, id_contaminante)
+    REFERENCES muestra(id_muestra), contaminante(id_contaminante)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE compuesto(--hija p1p2
+    id_compuesto SERIAL PRIMARY KEY,
+    id_muestra INT NOT NULL,
+    id_contaminante INT NOT NULL,
+    molecula    VARCHAR(20) NOT NULL,
+    FOREIGN KEY (id_muestra, id_contaminante)
+    REFERENCES muestra(id_muestra), contaminante(id_contaminante)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
