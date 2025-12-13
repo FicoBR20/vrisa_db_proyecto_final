@@ -186,7 +186,9 @@ CREATE TABLE institucion(
     tipo_inst tipo_institucion NOT NULL,
     color_1 INT NOT NULL,
     color_2 INT NOT NULL,
-    logo_image_path TEXT NOT NULL,
+    logo_image_path TEXT NOT NULL
+    CHECK (length(logo_image_path) > 5)
+    CHECK (logo_image_path ~* '\.(png|jpg|jpeg)$')
     secret_key VARCHAR(6),
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
     FOREIGN KEY (color_1) REFERENCES color_inst(id_color),
