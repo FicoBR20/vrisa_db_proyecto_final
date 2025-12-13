@@ -1,0 +1,23 @@
+1- Se crea el docker-compose.yml tener presente en la parde de las
+variables de entorno de postgres definir claramente el usuario, password
+y nombre de la base de datos.
+2 - crear la estructura del folder init/en el cual van a estar los archivos .sql y ya esta
+referenciado ese folder en el .yml.
+3- en la carpeta init  crear el archivo 01-postgis.sql para la extension de postgres con el siguiente contenido:
+    CREATE EXTENSION IF NOT EXISTS postgis;
+    CREATE EXTENSION IF NOT EXISTS postgis_topology; 
+Con esto postgis se ejecuta automaticamente y queda disponible desde el inicio y admitira el tipo de dato geometry
+4- Para lanzar en background postgres, ir a la terminal, ubicarse en el directorio de .yml y ejecutar el siguiente comando.
+    docker compose up -d 
+
+5- docker ps   y aparecera el contenedor
+
+6- docker exec -it postgres14_postgis psql -U {nombre_del_usuario} -d {nombre de la base de datos}  -- lanza el usuario psql en el terminal
+
+7- SELECT PostGIS_Version();  -- instruccion en el terminal con el usuario psql
+
+8- aparecera algo asi:  3.3 USE_GEOS=1 USE_PROJ=1 USE_STATS=1  // todo va bien gracias a Dios la base esta andando
+
+9- consultar todas las tablas: \dt
+
+
